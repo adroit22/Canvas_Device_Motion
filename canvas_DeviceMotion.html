@@ -1,0 +1,176 @@
+<html>
+
+<head>
+	<style>
+		html,
+		body {
+			width: 100%;
+			height: 100%;
+			margin: 0;
+		}
+	</style>
+</head>
+
+<body>
+	<div id=top><canvas id="myCanvas"></canvas></div>
+
+
+	<script>
+
+		/*Populate random colours in the array*/
+		var colourArray = [];
+		for (var i = 0; i < 400; i++) {
+			colourArray[i] = "#" + ((1 << 24) * Math.random() | 0).toString(16);
+		}
+
+		function drawOnCanvas(motionX, motionY, motionZ) {
+			console.log("The value x-" + motionX + " value y- " + motionY + " value z- " + motionZ);
+
+			var myCanvas = document.getElementById("myCanvas");
+			var drawingContext = myCanvas.getContext("2d");
+			myCanvas.width = window.innerWidth;
+			myCanvas.height = window.innerHeight;
+
+			let start = new Date().getMilliseconds();
+			console.log("Start drawing Canvas");
+			drawingContext.clearRect(0, 0, innerWidth, innerHeight);
+
+			var widthOfStripes = myCanvas.width / 10;
+			var accelaration = Math.abs(motionX * motionY * motionZ);
+			console.log("Accelation due to movement is " + accelaration);
+
+			if (motionX < 0 && motionY >= 0 && motionZ >= 0) {
+				normalFig(drawingContext, widthOfStripes);
+			} else if (motionX >= 0 && motionZ >= 0) {
+				rigthTitledFig(drawingContext, widthOfStripes, accelaration);
+			} else if (motionX < 0 && motionY < 0 && motionZ >= 0) {
+				leftTitledFig(drawingContext, widthOfStripes, accelaration);
+			} else {
+				completeTitledFig(drawingContext, widthOfStripes, accelaration);
+			}
+			let end = new Date().getMilliseconds();
+			console.log("Completed drawing Canvas in " + (end - start) + " milliseconds");
+
+			drawingContext.save();
+			drawingContext.restore();
+		}
+
+		function normalFig(drawingContext, widthOfStripes, width) {
+			for (var x = 0; x <= myCanvas.width; x += widthOfStripes) {
+				for (var y = 0; y <= myCanvas.height + 2 * widthOfStripes; y += widthOfStripes) {
+					let i = x / widthOfStripes;
+					let j = y / widthOfStripes;
+					var randomColor = colourArray[(i * j) + j];
+					drawingContext.beginPath();
+					drawingContext.moveTo(x, y);
+					drawingContext.lineTo(x + widthOfStripes, y - widthOfStripes);
+					drawingContext.lineTo(x + widthOfStripes, y - (2 * widthOfStripes));
+					drawingContext.lineTo(x, y - widthOfStripes);
+					drawingContext.closePath();
+					drawingContext.stroke();
+					drawingContext.strokeStyle = randomColor;
+					drawingContext.fillStyle = randomColor;
+					drawingContext.fill();
+				}
+			}
+		}
+
+		function leftTitledFig(drawingContext, widthOfStripes, accelaration) {
+			let count = 1;
+			newWidth = myCanvas.width / (55 + accelaration);
+			for (var x = 0; x <= myCanvas.width; x += count * newWidth) {
+				for (var y = 0; y <= myCanvas.height + 2 * widthOfStripes; y += widthOfStripes) {
+					let i = count;
+					let j = y / widthOfStripes;
+					var randomColor = colourArray[(i * j) + j];
+					drawingContext.beginPath();
+					drawingContext.moveTo(x, y);
+					drawingContext.lineTo(x + count * newWidth, y - widthOfStripes);
+					drawingContext.lineTo(x + count * newWidth, y - (2 * widthOfStripes));
+					drawingContext.lineTo(x, y - widthOfStripes);
+					drawingContext.closePath();
+					drawingContext.stroke();
+					drawingContext.strokeStyle = randomColor;
+					drawingContext.fillStyle = randomColor;
+					drawingContext.fill();
+				}
+				count++;
+			}
+		}
+
+		function rigthTitledFig(drawingContext, widthOfStripes, accelaration) {
+			let count = 20;
+			newWidth = myCanvas.width / (55 + accelaration);
+			for (var x = 0; x <= myCanvas.width; x += count * newWidth) {
+				if (count == 0) {
+					break;
+				}
+				for (var y = 0; y <= myCanvas.height + 2 * widthOfStripes; y += widthOfStripes) {
+					let j = y / widthOfStripes;
+					var randomColor = colourArray[(count * j) + j];
+					drawingContext.beginPath();
+					drawingContext.moveTo(x, y);
+					drawingContext.lineTo(x + count * newWidth, y - widthOfStripes);
+					drawingContext.lineTo(x + count * newWidth, y - (2 * widthOfStripes));
+					drawingContext.lineTo(x, y - widthOfStripes);
+					drawingContext.closePath();
+					drawingContext.stroke();
+					drawingContext.strokeStyle = randomColor;
+					drawingContext.fillStyle = randomColor;
+					drawingContext.fill();
+				}
+				count--;
+			}
+		}
+
+		function completeTitledFig(drawingContext, widthOfStripes, accelaration) {
+			newWidth = myCanvas.width / (20 + accelaration);
+			for (var x = 0; x <= myCanvas.width; x += widthOfStripes) {
+				let i = x / widthOfStripes;
+				let count = 1;
+				for (var y = 0; y <= myCanvas.height + 10 * widthOfStripes; y += count * newWidth) {
+					var randomColor = colourArray[(count * i) + count];
+					drawingContext.beginPath();
+					drawingContext.moveTo(x, y);
+					drawingContext.lineTo(x + widthOfStripes, y - (count * newWidth));
+					drawingContext.lineTo(x + widthOfStripes, y - (2 * count * newWidth));
+					drawingContext.lineTo(x, y - (count * newWidth));
+					drawingContext.closePath();
+					drawingContext.stroke();
+					drawingContext.strokeStyle = randomColor;
+					drawingContext.fillStyle = randomColor;
+					drawingContext.fill();
+					count++;
+				}
+			}
+		}
+
+		function motionHandler(event) {
+			console.log(window.DeviceMotionEvent);
+			let motionX = event.accelerationIncludingGravity.x.toFixed(2);
+			let motionY = event.accelerationIncludingGravity.y.toFixed(2);
+			let motionZ = event.accelerationIncludingGravity.z.toFixed(2);
+			let requestId = window.requestAnimationFrame(() => { this.drawOnCanvas(motionX, motionY, motionZ); });
+		}
+
+		if (window.DeviceMotionEvent) {
+			window.addEventListener("devicemotion", motionHandler, true);
+			console.log("Device Motion is supported");
+		}
+
+		let start = new Date().getMilliseconds();
+		window.addEventListener('load', (event) => {
+			let end = new Date().getMilliseconds();
+			console.log("Load Event time is : " + (end - start) + " milliseconds");
+		});
+
+		document.addEventListener('readystatechange', (event) => {
+			let end = new Date().getMilliseconds();
+			console.log("ReadyStateChange Event time : " + (end - start) + " milliseconds");
+		});
+
+	</script>
+
+</body>
+
+</html>
